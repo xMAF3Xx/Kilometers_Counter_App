@@ -10,9 +10,22 @@
 		3C38E0DA2EDC5B8B00CA23B9 /* Kilometers Counter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Kilometers Counter.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		3CA073A22EEEF90A0061C1A6 /* Exceptions for "Kilometers Counter" folder in "Kilometers Counter" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Kilometers-Counter-Info.plist",
+			);
+			target = 3C38E0D92EDC5B8B00CA23B9 /* Kilometers Counter */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		3C38E0DC2EDC5B8B00CA23B9 /* Kilometers Counter */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				3CA073A22EEEF90A0061C1A6 /* Exceptions for "Kilometers Counter" folder in "Kilometers Counter" target */,
+			);
 			path = "Kilometers Counter";
 			sourceTree = "<group>";
 		};
@@ -253,6 +266,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Kilometers-Counter-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -284,6 +298,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Kilometers-Counter-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
