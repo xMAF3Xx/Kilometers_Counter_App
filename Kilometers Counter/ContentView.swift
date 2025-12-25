@@ -8,7 +8,7 @@ struct ContentView: View {
             TabView(selection: $selectedFirstView) {
                 CentralView(kmList: $kmListed)
                     .tabItem {
-                        Label("Downloads", systemImage: "globe")
+                        Label("Viaggi", systemImage: "airplane")
                     }
                     .tag(0)
                 

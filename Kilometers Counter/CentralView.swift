@@ -1,5 +1,12 @@
 import SwiftUI
 
+struct Viaggio: Identifiable, Equatable {
+    let id = UUID()
+    let nome: String
+    let km: String
+    let data: String
+}
+
 struct CentralView: View {
     @State private var righe: [String] = []
     @State private var showingPopup = false
@@ -8,16 +15,12 @@ struct CentralView: View {
     var file: URL {
         documentsFile("kilometers_list.csv")
     }
-    @State private var showingInfo = false
-    @State private var infoSelezionata = ""
-    @State private var nomeInfoSelezionata = ""
-    @State private var kmInfoSelezionata = ""
-    @State private var dateInfoSelezionata = ""
     @State private var selectedDate = Date()
     @State private var nameList = [String]()
     @State private var dateList = [String]()
     //@State private var kmList = [Int]()
     @Binding var kmList: [Int]
+    @State private var viaggioSelezionato: Viaggio?
     var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = "dd/MM/yyyy"
@@ -38,11 +41,14 @@ struct CentralView: View {
                                     Text(riga.components(separatedBy: ";")[1])
                                     Spacer()
                                     Button {
-                                        infoSelezionata = riga
-                                        nomeInfoSelezionata=riga.components(separatedBy: ";")[1]
-                                        kmInfoSelezionata=riga.components(separatedBy: ";")[0]
-                                        dateInfoSelezionata=riga.components(separatedBy: ";")[2]
-                                        showingInfo = true
+                                        let comps = riga.components(separatedBy: ";")
+                                        if comps.count >= 3 {
+                                            viaggioSelezionato = Viaggio(
+                                                nome: comps[1],
+                                                km: comps[0],
+                                                data: comps[2]
+                                            )
+                                        }
                                     } label: {
                                         Image(systemName: "info.circle")
                                             .foregroundColor(.blue)
@@ -62,11 +68,11 @@ struct CentralView: View {
                             }
                         }
                         .navigationTitle("Viaggi")
-                        .sheet(isPresented: $showingInfo) {
+                        .sheet(item: $viaggioSelezionato) { viaggio in
                             VStack {
                                 HStack{
                                     Button {
-                                        showingInfo = false
+                                        viaggioSelezionato = nil
                                     } label: {
                                         Image(systemName: "xmark")
                                             .padding()
@@ -75,12 +81,12 @@ struct CentralView: View {
                                             .cornerRadius(30)
                                             .padding()
                                     }
-                                    Text(String("\t"+nomeInfoSelezionata))
+                                    Text("\t\(viaggio.nome)")
                                         .font(.title)
                                     Spacer()
                                 }
-                                    Text("kilometri percorsi: "+kmInfoSelezionata+"km")
-                                    Text("Data: "+dateInfoSelezionata)
+                                Text("kilometri percorsi: \(viaggio.km)km")
+                                Text("Data: \(viaggio.data)")
                                 Spacer()
                             }
                             .padding()
@@ -260,3 +266,4 @@ struct CentralView: View {
 #Preview{
     CentralView(kmList: .constant([10, 20, 30]))
 }
+
