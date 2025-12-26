@@ -26,6 +26,7 @@ struct CentralView: View {
         formatter.dateFormat = "dd/MM/yyyy"
         return formatter
     }
+    @State private var showDeleteAlert = false
     
     var body: some View {
         //SettingsScreen(kmListed: $kmList)
@@ -34,67 +35,81 @@ struct CentralView: View {
                 if righe.isEmpty {
                     Text("Aggiungi dei Viaggi!")
                 } else {
-                    NavigationView {
-                        List {
-                            ForEach(righe, id: \.self) { riga in
-                                SwiftUICore.HStack {
-                                    Text(riga.components(separatedBy: ";")[1])
+                        NavigationView {
+                            List {
+                                ForEach(righe, id: \.self) { riga in
+                                    SwiftUICore.HStack {
+                                        Text(riga.components(separatedBy: ";")[1])
+                                        Spacer()
+                                        Button {
+                                            let comps = riga.components(separatedBy: ";")
+                                            if comps.count >= 3 {
+                                                viaggioSelezionato = Viaggio(
+                                                    nome: comps[1],
+                                                    km: comps[0],
+                                                    data: comps[2]
+                                                )
+                                            }
+                                        } label: {
+                                            Image(systemName: "info.circle")
+                                                .foregroundColor(.blue)
+                                        }
+                                    }
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                        Button(role: .destructive) {
+                                            if let index = righe.firstIndex(of: riga) {
+                                                righe.remove(at: index)
+                                                rimuoviRigaDaFile(indiceRiga: index)
+                                                loadArrays()
+                                            }
+                                        } label: {
+                                            Label("Cancella", systemImage: "trash")
+                                        }
+                                    }
+                                }
+                                /*Button {
+                                 showDeleteAlert = true
+                                 } label: {
+                                 Label("Delete All", systemImage: "trash")
+                                 }*/
+                            }
+                            .alert("Eliminare tutti i viaggi?", isPresented: $showDeleteAlert) {
+                                Button("Elimina", role: .destructive) {
+                                    deleteAllLines()
+                                    caricaCSV()
+                                }
+                                Button("Annulla", role: .cancel) { }
+                            } message: {
+                                Text("Questa azione è irreversibile.")
+                            }
+                            .navigationTitle("Viaggi")
+                            .sheet(item: $viaggioSelezionato) { viaggio in
+                                VStack {
+                                    HStack{
+                                        Button {
+                                            viaggioSelezionato = nil
+                                        } label: {
+                                            Image(systemName: "xmark")
+                                                .padding()
+                                                .background(Color.red)
+                                                .foregroundColor(.white)
+                                                .cornerRadius(30)
+                                                .padding()
+                                        }
+                                        Text("\t\(viaggio.nome)")
+                                            .font(.title)
+                                        Spacer()
+                                    }
+                                    Text("kilometri percorsi: \(viaggio.km)km")
+                                    Text("Data: \(viaggio.data)")
                                     Spacer()
-                                    Button {
-                                        let comps = riga.components(separatedBy: ";")
-                                        if comps.count >= 3 {
-                                            viaggioSelezionato = Viaggio(
-                                                nome: comps[1],
-                                                km: comps[0],
-                                                data: comps[2]
-                                            )
-                                        }
-                                    } label: {
-                                        Image(systemName: "info.circle")
-                                            .foregroundColor(.blue)
-                                    }
                                 }
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    Button(role: .destructive) {
-                                        if let index = righe.firstIndex(of: riga) {
-                                            righe.remove(at: index)
-                                            rimuoviRigaDaFile(indiceRiga: index)
-                                            loadArrays()
-                                        }
-                                    } label: {
-                                        Label("Cancella", systemImage: "trash")
-                                    }
-                                }
+                                .padding()
                             }
                         }
-                        .navigationTitle("Viaggi")
-                        .sheet(item: $viaggioSelezionato) { viaggio in
-                            VStack {
-                                HStack{
-                                    Button {
-                                        viaggioSelezionato = nil
-                                    } label: {
-                                        Image(systemName: "xmark")
-                                            .padding()
-                                            .background(Color.red)
-                                            .foregroundColor(.white)
-                                            .cornerRadius(30)
-                                            .padding()
-                                    }
-                                    Text("\t\(viaggio.nome)")
-                                        .font(.title)
-                                    Spacer()
-                                }
-                                Text("kilometri percorsi: \(viaggio.km)km")
-                                Text("Data: \(viaggio.data)")
-                                Spacer()
-                            }
-                            .padding()
+                        .onAppear(){
+                            loadArrays()
                         }
-                    }
-                    .onAppear(){
-                        loadArrays()
-                    }
                 }
             }
             HStack {
@@ -113,6 +128,21 @@ struct CentralView: View {
                     popupSalvataggio
                 }
             }
+            HStack{
+                Button {
+                    //deleteAllLines()
+                    showDeleteAlert = true
+                } label: {
+                    RoundedRectangle(cornerRadius: 50)
+                        .fill(Color.red.opacity(0.2))
+                        .overlay(
+                                Label("Delete All", systemImage: "trash")
+                                    .foregroundColor(Color.red)
+                        )
+                        .frame(maxWidth: 120, maxHeight: 40)
+                }
+            }
+            .position(x: 320, y:80)
         }
         .onAppear {
             caricaCSV()
@@ -157,16 +187,16 @@ struct CentralView: View {
             }
             .padding()
             Spacer()
-                Section(header: Text("Seleziona una data:")) {
-                    DatePicker("",
-                        selection: $selectedDate,
-                        displayedComponents: [.date]
-                    )
-                    .datePickerStyle(WheelDatePickerStyle())
-                    .labelsHidden()
-                    .frame(maxWidth: .infinity)
-                    .clipped()
-                }
+            Section(header: Text("Seleziona una data:")) {
+                DatePicker("",
+                           selection: $selectedDate,
+                           displayedComponents: [.date]
+                )
+                .datePickerStyle(WheelDatePickerStyle())
+                .labelsHidden()
+                .frame(maxWidth: .infinity)
+                .clipped()
+            }
             Spacer()
             
             HStack {
@@ -216,7 +246,7 @@ struct CentralView: View {
         
         caricaCSV()
     }
-
+    
     
     func documentsFile(_ name: String) -> URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -239,8 +269,8 @@ struct CentralView: View {
             }
         }
     }
-
-
+    
+    
     func rimuoviRigaDaFile(indiceRiga: Int) {
         do {
             let contenuto = try String(contentsOf: file, encoding: .utf8)
@@ -259,6 +289,20 @@ struct CentralView: View {
             print("Riga \(indiceRiga) rimossa con successo!")
         } catch {
             print("Errore nella lettura o scrittura del file: \(error)")
+        }
+    }
+    
+    func deleteAllLines() {
+        do {
+            if FileManager.default.fileExists(atPath: file.path) {
+                try FileManager.default.removeItem(at: file)
+            }
+            righe.removeAll()
+            kmList.removeAll()
+            nameList.removeAll()
+            dateList.removeAll()
+        } catch {
+            print("Errore nell'eliminazione del file: \(error)")
         }
     }
 }
